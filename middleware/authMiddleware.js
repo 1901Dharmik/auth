@@ -20,4 +20,20 @@ const authMiddleware = async (req, res, next) => {
   } catch (error) {}
 };
 
-module.exports = { authMiddleware };
+const isAdmin = asyncHandler(async (req, res, next) => {
+    console.log(req.user);
+    if (!req.user) {
+      throw new Error("User not found");
+    }
+  
+    const { email } = req.user;
+    const adminUser = await User.findOne({ email });
+  
+    if (!adminUser || adminUser.role !== "admin") {
+      return res.status(403).send("You are not authorized to access this route");
+    }
+  
+    next();
+  });
+
+module.exports = { authMiddleware,isAdmin };
